@@ -38,9 +38,18 @@ export default function App() {
   const proverb = useMemo(() => PROVERBS[Math.floor(currentDate.getTime() / (1000 * 60 * 60 * 24)) % PROVERBS.length], [currentDate]);
 
   const userZodiac = useMemo(() => {
-    return CHINESE_ZODIAC.find(z => z.years.includes(userBirthYear)) || 
-           CHINESE_ZODIAC[(userBirthYear - 1924) % 12];
+    const found = CHINESE_ZODIAC.find(z => z.years.includes(userBirthYear));
+    if (found) return found;
+    // Standard cyclical calculation for Chinese Zodiac (12-year cycle)
+    // 1924 was a year of the Rat (index 0)
+    const index = ((userBirthYear - 1924) % 12 + 12) % 12;
+    return CHINESE_ZODIAC[index] || CHINESE_ZODIAC[0];
   }, [userBirthYear]);
+
+  const zodiacIndex = useMemo(() => {
+    const idx = CHINESE_ZODIAC.indexOf(userZodiac);
+    return idx === -1 ? 0 : idx;
+  }, [userZodiac]);
 
   const nextMonth = () => setCurrentDate(new Date(year, month, 1));
   const prevMonth = () => setCurrentDate(new Date(year, month - 2, 1));
@@ -80,7 +89,7 @@ export default function App() {
             
             <div className="bg-white/40 p-4 border-2 border-trad-red/20 rounded shadow-sm flex flex-col items-center text-center w-full">
               <p className="text-6xl mb-2 drop-shadow-sm">
-                {['🐀', '🐂', '🐅', '🐇', '🐉', '🐍', '🐎', '🐐', '🐒', '🐓', '🐕', '🐖'][CHINESE_ZODIAC.indexOf(userZodiac)]}
+                {['🐀', '🐂', '🐅', '🐇', '🐉', '🐍', '🐎', '🐐', '🐒', '🐓', '🐕', '🐖'][zodiacIndex]}
               </p>
               <h4 className="font-black text-3xl font-calligraphy mb-1 text-trad-red">{userZodiac.hanzi}</h4>
               <p className="text-[10px] font-black uppercase tracking-widest mb-4 opacity-60">{userZodiac.name}</p>
@@ -312,7 +321,7 @@ export default function App() {
 
                 <div className="bg-trad-alt-paper p-6 border-2 border-trad-red flex items-center gap-8">
                   <div className="text-7xl">
-                    {['🐀', '🐂', '🐅', '🐇', '🐉', '🐍', '🐎', '🐐', '🐒', '🐓', '🐕', '🐖'][CHINESE_ZODIAC.indexOf(userZodiac)]}
+                    {['🐀', '🐂', '🐅', '🐇', '🐉', '🐍', '🐎', '🐐', '🐒', '🐓', '🐕', '🐖'][zodiacIndex]}
                   </div>
                   <div className="space-y-1">
                     <p className="text-3xl font-black text-trad-red uppercase">{userZodiac.name}</p>
